@@ -1,0 +1,9 @@
+{
+    "rootDir": "workspace-frontend",
+    "rewrites": [
+        {
+            "source": "/(.*)",
+            "destination": "/$1"
+        }
+    ]
+}
