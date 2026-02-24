@@ -137,22 +137,10 @@ app.use(compression());
 app.use(express.json({ limit: '5mb' }));
 app.use(cookieParser());
 
-// CORS configuration
+// CORS — allow ALL origins (required for cross-domain fetch with credentials)
 app.use(cors({
-    origin: (origin, callback) => {
-        // Allow requests with no origin (mobile apps, curl, Postman)
-        if (!origin) return callback(null, true);
-        // Always allow localhost / 127.0.0.1 for local dev
-        if (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
-            return callback(null, true);
-        }
-        // In production: allow any HTTPS origin (covers GitHub Pages, Netlify, Render, Vercel, custom domains)
-        if (origin.startsWith('https://')) {
-            return callback(null, true);
-        }
-        return callback(new Error('CORS policy violation: ' + origin), false);
-    },
-    credentials: true,
+    origin: true,          // reflect request origin, allows any domain
+    credentials: true,     // allow cookies / Authorization headers
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
@@ -307,10 +295,13 @@ app.post('/api/login', loginLimiter, validateLogin, async (req, res) => {
 
                 res.cookie('authToken', token, {
                     httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
-                    sameSite: 'lax',
+                    // CROSS-ORIGIN: must be 'none' + secure:true so browsers send
+                    // the cookie from a different domain (GitHub Pages → Render)
+                    secure: true,
+                    sameSite: 'none',
                     maxAge: 7200000
                 });
+
 
                 logEvent(user.id, user.email, 'LOGIN_SUCCESS', req.ip, 'Success');
                 return res.json({
