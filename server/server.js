@@ -18,13 +18,6 @@ const PORT = process.env.PORT || 3000;
 const SALT_ROUNDS = 10;
 
 // --- 1. DATABASE CONNECTION (FOLDER-AWARE) ---
-// Ensure the Data Base folder exists BEFORE sqlite3 tries to open the file
-// (critical on Render/cloud where the disk is ephemeral)
-const dbDir = path.resolve(__dirname, '../Data Base');
-if (!fs.existsSync(dbDir)) {
-    fs.mkdirSync(dbDir, { recursive: true });
-    console.log('📁 Created Data Base directory');
-}
 const dbPath = path.resolve(__dirname, '../Data Base/database.db');
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) console.error("❌ Database Error:", err.message);
@@ -153,14 +146,9 @@ app.use(cors({
 }));
 
 
-// --- 3. SERVE FRONTEND STATIC FILES ---
-const frontendPath = path.resolve(__dirname, '../../workspace-frontend');
-app.use(express.static(frontendPath));
-
-// Fallback for SPA routing (important if you use sub-pages)
-app.get('/dashboard', (req, res) => {
-    res.sendFile(path.join(frontendPath, 'dashboard.html'));
-});
+// NOTE: Frontend is deployed separately on GitHub Pages.
+// API-only server — no static file serving needed.
+// Frontend talks to this backend via window.API_BASE in config.js.
 
 // Rate limiters
 const apiLimiter = rateLimit({

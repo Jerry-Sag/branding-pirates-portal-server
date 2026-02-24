@@ -12,8 +12,34 @@ package-lock.json
 npm-debug.log*
 logs/
 
-# Database backups
+# Database backups and live databases
 Backups/
+Data Base/database.db
+Data Base/Workspaces/
+*.db
+
+# Frontend lives in its own separate repo — not part of backend
+workspace-frontend/
+
+# Debug / utility scripts (not for production)
+inspect_db.js
+dump_users.js
+users_dump.json
+check_*.js
+debug_*.js
+fix_*.js
+reset_*.js
+set_pass_*.js
+final_reset_*.js
+migrate_db.js
+seed_workspaces.js
+repair-members.js
+recreate_admin.js
+target_debug.log
+server/.env
+server/workspace-admin.db
+server/users_dump.json
+server/target_debug.log
 
 # IDE
 .vscode/
@@ -28,4 +54,3 @@ Thumbs.db
 # Temporary files
 *.tmp
 temp/
-inspect_db.js
