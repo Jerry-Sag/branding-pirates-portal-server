@@ -137,27 +137,14 @@ app.use(compression());
 app.use(express.json({ limit: '5mb' }));
 app.use(cookieParser());
 
-// CORS configuration
-const allowedOrigins = process.env.NODE_ENV === 'production'
-    ? (process.env.ALLOWED_ORIGINS || '').split(',')
-    : ['http://127.0.0.1:5500', 'http://localhost:5500'];
-
-// CORS configuration
+// CORS — allow ALL origins (required for cross-domain fetch with credentials)
 app.use(cors({
-    origin: (origin, callback) => {
-        if (!origin) return callback(null, true);
-        if (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
-            return callback(null, true);
-        }
-        if (allowedOrigins.indexOf(origin) === -1) {
-            return callback(new Error('CORS policy violation'), false);
-        }
-        return callback(null, true);
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    origin: true,          // reflect request origin, allows any domain
+    credentials: true,     // allow cookies / Authorization headers
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
+
 
 // --- 3. SERVE FRONTEND STATIC FILES ---
 const frontendPath = path.resolve(__dirname, '../../workspace-frontend');
@@ -308,10 +295,13 @@ app.post('/api/login', loginLimiter, validateLogin, async (req, res) => {
 
                 res.cookie('authToken', token, {
                     httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
-                    sameSite: 'lax',
+                    // CROSS-ORIGIN: must be 'none' + secure:true so browsers send
+                    // the cookie from a different domain (GitHub Pages → Render)
+                    secure: true,
+                    sameSite: 'none',
                     maxAge: 7200000
                 });
+
 
                 logEvent(user.id, user.email, 'LOGIN_SUCCESS', req.ip, 'Success');
                 return res.json({
