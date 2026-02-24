@@ -182,7 +182,11 @@ app.use((req, res, next) => {
 // --- 3. AUTHENTICATION MIDDLEWARE ---
 
 function authenticateToken(req, res, next) {
-    const token = req.cookies.authToken;
+    // Accept token from httpOnly cookie (same-origin) OR Authorization header (cross-origin e.g. Vercel→Render)
+    let token = req.cookies.authToken;
+    if (!token && req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+        token = req.headers.authorization.slice(7);
+    }
 
     if (!token) {
         return res.status(401).json({ message: 'Authentication required' });
@@ -295,19 +299,19 @@ app.post('/api/login', loginLimiter, validateLogin, async (req, res) => {
 
                 res.cookie('authToken', token, {
                     httpOnly: true,
-                    // CROSS-ORIGIN: must be 'none' + secure:true so browsers send
-                    // the cookie from a different domain (GitHub Pages → Render)
                     secure: true,
                     sameSite: 'none',
                     maxAge: 7200000
                 });
 
-
                 logEvent(user.id, user.email, 'LOGIN_SUCCESS', req.ip, 'Success');
+                // Also return token in body so cross-origin frontends (Vercel) can
+                // store it in localStorage and send as Authorization: Bearer header
                 return res.json({
                     success: true,
                     role: user.role,
-                    avatar: user.avatar
+                    avatar: user.avatar,
+                    token: token
                 });
             } else {
                 const attempts = (user.failed_attempts || 0) + 1;
@@ -331,7 +335,11 @@ app.post('/api/login', loginLimiter, validateLogin, async (req, res) => {
 });
 
 app.get('/api/verify', (req, res) => {
-    const token = req.cookies.authToken;
+    // Accept cookie (same-origin) or Authorization header (cross-origin Vercel→Render)
+    let token = req.cookies.authToken;
+    if (!token && req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+        token = req.headers.authorization.slice(7);
+    }
     console.log(`🔍 Verification Check: Token ${token ? 'PRESENT' : 'MISSING'}`);
 
     if (!token) {
@@ -374,7 +382,7 @@ app.get('/api/verify', (req, res) => {
 });
 
 app.post('/api/logout', (req, res) => {
-    res.clearCookie('authToken');
+    res.clearCookie('authToken', { httpOnly: true, secure: true, sameSite: 'none' });
     res.json({ success: true });
 });
 
