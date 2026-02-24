@@ -54,6 +54,7 @@ async function validateAccess() {
 }
 
 async function logout() {
+    window.clearAuthToken(); // Clear Bearer token from localStorage
     await fetch(`${window.API_BASE}/api/logout`, { method: 'POST', credentials: 'include' });
     window.location.replace('index.html');
 }

@@ -25,8 +25,8 @@ loginForm.addEventListener('submit', async (e) => {
         const data = await response.json();
 
         if (response.ok && data.success) {
-            // SUCCESS: Redirect to the dashboard
-            // Note: The role is handled by the server-side cookie
+            // Store token for cross-origin Bearer auth (e.g. Vercel → Render)
+            window.setAuthToken(data.token);
             window.location.replace('dashboard.html');
         } else {
             // FAILURE: Show specific error (e.g., "Account Blocked" or "Wrong Password")
