@@ -1888,7 +1888,7 @@ async function submitNewWorkspace() {
         return;
     }
 
-    const endpoint = window.editingWorkspaceId ? '/api/workspaces/update' : '/api/workspaces/create';
+    const endpoint = window.API_BASE + (window.editingWorkspaceId ? '/api/workspaces/update' : '/api/workspaces/create');
     const payload = {
         displayName: name,
         users: assignedUserIds,
