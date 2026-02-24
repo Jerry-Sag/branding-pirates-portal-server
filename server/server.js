@@ -18,6 +18,13 @@ const PORT = process.env.PORT || 3000;
 const SALT_ROUNDS = 10;
 
 // --- 1. DATABASE CONNECTION (FOLDER-AWARE) ---
+// Ensure the Data Base folder exists BEFORE sqlite3 tries to open the file
+// (critical on Render/cloud where the disk is ephemeral)
+const dbDir = path.resolve(__dirname, '../Data Base');
+if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
+    console.log('📁 Created Data Base directory');
+}
 const dbPath = path.resolve(__dirname, '../Data Base/database.db');
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) console.error("❌ Database Error:", err.message);
@@ -182,11 +189,7 @@ app.use((req, res, next) => {
 // --- 3. AUTHENTICATION MIDDLEWARE ---
 
 function authenticateToken(req, res, next) {
-    // Accept token from httpOnly cookie (same-origin) OR Authorization header (cross-origin e.g. Vercel→Render)
-    let token = req.cookies.authToken;
-    if (!token && req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
-        token = req.headers.authorization.slice(7);
-    }
+    const token = req.cookies.authToken;
 
     if (!token) {
         return res.status(401).json({ message: 'Authentication required' });
@@ -299,19 +302,19 @@ app.post('/api/login', loginLimiter, validateLogin, async (req, res) => {
 
                 res.cookie('authToken', token, {
                     httpOnly: true,
+                    // CROSS-ORIGIN: must be 'none' + secure:true so browsers send
+                    // the cookie from a different domain (GitHub Pages → Render)
                     secure: true,
                     sameSite: 'none',
                     maxAge: 7200000
                 });
 
+
                 logEvent(user.id, user.email, 'LOGIN_SUCCESS', req.ip, 'Success');
-                // Also return token in body so cross-origin frontends (Vercel) can
-                // store it in localStorage and send as Authorization: Bearer header
                 return res.json({
                     success: true,
                     role: user.role,
-                    avatar: user.avatar,
-                    token: token
+                    avatar: user.avatar
                 });
             } else {
                 const attempts = (user.failed_attempts || 0) + 1;
@@ -335,11 +338,7 @@ app.post('/api/login', loginLimiter, validateLogin, async (req, res) => {
 });
 
 app.get('/api/verify', (req, res) => {
-    // Accept cookie (same-origin) or Authorization header (cross-origin Vercel→Render)
-    let token = req.cookies.authToken;
-    if (!token && req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
-        token = req.headers.authorization.slice(7);
-    }
+    const token = req.cookies.authToken;
     console.log(`🔍 Verification Check: Token ${token ? 'PRESENT' : 'MISSING'}`);
 
     if (!token) {
@@ -382,7 +381,7 @@ app.get('/api/verify', (req, res) => {
 });
 
 app.post('/api/logout', (req, res) => {
-    res.clearCookie('authToken', { httpOnly: true, secure: true, sameSite: 'none' });
+    res.clearCookie('authToken');
     res.json({ success: true });
 });
 
