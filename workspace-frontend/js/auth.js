@@ -3,7 +3,7 @@
  */
 async function validateAccess() {
     try {
-        const response = await fetch('/api/verify', {
+        const response = await fetch(`${window.API_BASE}/api/verify`, {
             method: 'GET',
             credentials: 'include' // Sends the secure cookie
         });
@@ -54,7 +54,7 @@ async function validateAccess() {
 }
 
 async function logout() {
-    await fetch('/api/logout', { method: 'POST', credentials: 'include' });
+    await fetch(`${window.API_BASE}/api/logout`, { method: 'POST', credentials: 'include' });
     window.location.replace('index.html');
 }
 window.logout = logout;

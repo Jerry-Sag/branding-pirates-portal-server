@@ -138,26 +138,25 @@ app.use(express.json({ limit: '5mb' }));
 app.use(cookieParser());
 
 // CORS configuration
-const allowedOrigins = process.env.NODE_ENV === 'production'
-    ? (process.env.ALLOWED_ORIGINS || '').split(',')
-    : ['http://127.0.0.1:5500', 'http://localhost:5500'];
-
-// CORS configuration
 app.use(cors({
     origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, curl, Postman)
         if (!origin) return callback(null, true);
+        // Always allow localhost / 127.0.0.1 for local dev
         if (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
             return callback(null, true);
         }
-        if (allowedOrigins.indexOf(origin) === -1) {
-            return callback(new Error('CORS policy violation'), false);
+        // In production: allow any HTTPS origin (covers GitHub Pages, Netlify, Render, Vercel, custom domains)
+        if (origin.startsWith('https://')) {
+            return callback(null, true);
         }
-        return callback(null, true);
+        return callback(new Error('CORS policy violation: ' + origin), false);
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
+
 
 // --- 3. SERVE FRONTEND STATIC FILES ---
 const frontendPath = path.resolve(__dirname, '../../workspace-frontend');

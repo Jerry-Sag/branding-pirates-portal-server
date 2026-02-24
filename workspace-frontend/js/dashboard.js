@@ -1,4 +1,4 @@
-/**
+﻿/**
  * DASHBOARD.JS - Enhanced with All Missing Functions
  */
 // Dashboard Logic
@@ -49,8 +49,8 @@ window.loadTargetViewLegacy = async function (targetId, workspaceId) {
         currentViewContext = { name: 'target_view', params: { targetId, workspaceId } };
         // Fetch Data AND Members in parallel
         const [dataRes, membersRes] = await Promise.all([
-            fetch(`/api/targets/${targetId}/data?workspaceId=${workspaceId}`, { credentials: 'include' }),
-            fetch(`/api/workspaces/${workspaceId}/members`, { credentials: 'include' })
+            fetch(window.API_BASE + `/api/targets/${targetId}/data?workspaceId=${workspaceId}`, { credentials: 'include' }),
+            fetch(window.API_BASE + `/api/workspaces/${workspaceId}/members`, { credentials: 'include' })
         ]);
 
         if (!dataRes.ok) throw new Error('Failed to load target data');
@@ -241,7 +241,7 @@ window.ctxDeleteRow = async function (rowId) {
     });
     if (!confirmed) return;
     try {
-        const res = await fetch(`/api/targets/${currentTargetId}/rows/${rowId}?workspaceId=${currentWorkspaceId}`, {
+        const res = await fetch(window.API_BASE + `/api/targets/${currentTargetId}/rows/${rowId}?workspaceId=${currentWorkspaceId}`, {
             method: 'DELETE', credentials: 'include'
         });
         if (res.ok) { showToast('Row deleted', 'success'); refreshTargetData(); }
@@ -401,7 +401,7 @@ window.ctxAddRowBelow = async function (rowDate) {
 
 async function _postRow(dateVal) {
     try {
-        const res = await fetch(`/api/targets/${currentTargetId}/rows?workspaceId=${currentWorkspaceId}`, {
+        const res = await fetch(window.API_BASE + `/api/targets/${currentTargetId}/rows?workspaceId=${currentWorkspaceId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -425,7 +425,7 @@ window.ctxEditDate = async function (rowId, currentDate) {
     });
     if (!newDate || newDate === currentDate) return;
     try {
-        const res = await fetch(`/api/targets/${currentTargetId}/rows/${rowId}?workspaceId=${currentWorkspaceId}`, {
+        const res = await fetch(window.API_BASE + `/api/targets/${currentTargetId}/rows/${rowId}?workspaceId=${currentWorkspaceId}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -482,7 +482,7 @@ window.ctxAddColumnRight = async function (anchorCol) {
 
 async function _postColumn(name, anchorCol, side) {
     try {
-        const res = await fetch(`/api/targets/${currentTargetId}/columns?workspaceId=${currentWorkspaceId}`, {
+        const res = await fetch(window.API_BASE + `/api/targets/${currentTargetId}/columns?workspaceId=${currentWorkspaceId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -517,7 +517,7 @@ window.ctxRenameColumn = async function (colName) {
     });
     if (!newName || newName.trim() === '') return;
     try {
-        const res = await fetch(`/api/targets/${currentTargetId}/columns/${colName}?workspaceId=${currentWorkspaceId}`, {
+        const res = await fetch(window.API_BASE + `/api/targets/${currentTargetId}/columns/${colName}?workspaceId=${currentWorkspaceId}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -557,7 +557,7 @@ window.ctxDeleteColumn = async function (colName) {
     });
     if (!confirmed) return;
     try {
-        const res = await fetch(`/api/targets/${currentTargetId}/columns/${colName}?workspaceId=${currentWorkspaceId}`, {
+        const res = await fetch(window.API_BASE + `/api/targets/${currentTargetId}/columns/${colName}?workspaceId=${currentWorkspaceId}`, {
             method: 'DELETE', credentials: 'include'
         });
         if (res.ok) {
@@ -581,7 +581,7 @@ window.ctxDeleteColumn = async function (colName) {
 
 async function _postRow(dateVal) {
     try {
-        const res = await fetch(`/api/targets/${currentTargetId}/rows?workspaceId=${currentWorkspaceId}`, {
+        const res = await fetch(window.API_BASE + `/api/targets/${currentTargetId}/rows?workspaceId=${currentWorkspaceId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -752,7 +752,7 @@ window.deleteTargetRow = async function (rowId) {
     });
     if (!confirmed) return;
     try {
-        const res = await fetch(`/api/targets/${currentTargetId}/rows/${rowId}?workspaceId=${currentWorkspaceId}`, {
+        const res = await fetch(window.API_BASE + `/api/targets/${currentTargetId}/rows/${rowId}?workspaceId=${currentWorkspaceId}`, {
             method: 'DELETE',
             credentials: 'include'
         });
@@ -784,7 +784,7 @@ window.saveCellEdit = async function (spanEl) {
     if (newVal === origVal) return;
 
     try {
-        const res = await fetch(`/api/targets/${currentTargetId}/rows/${rowId}`, {
+        const res = await fetch(window.API_BASE + `/api/targets/${currentTargetId}/rows/${rowId}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ field, value: newVal }),
@@ -816,7 +816,7 @@ window.saveCellEdit = async function (spanEl) {
 async function doMetricsRefresh() {
     if (!currentTargetId || !currentWorkspaceId) return;
     try {
-        const res = await fetch(`/api/targets/${currentTargetId}/data?workspaceId=${currentWorkspaceId}`, { credentials: 'include' });
+        const res = await fetch(window.API_BASE + `/api/targets/${currentTargetId}/data?workspaceId=${currentWorkspaceId}`, { credentials: 'include' });
         const data = await res.json();
         if (!data || !data.rows) return;
 
@@ -1026,7 +1026,7 @@ window.submitTargetDateRow = async function () {
     const managedBy = document.getElementById('spa-daterow-managed')?.value || '';
     if (!dateVal) { showToast('Please pick a date', 'warning'); return; }
     try {
-        const res = await fetch(`/api/targets/${currentTargetId}/rows?workspaceId=${currentWorkspaceId}`, {
+        const res = await fetch(window.API_BASE + `/api/targets/${currentTargetId}/rows?workspaceId=${currentWorkspaceId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -1062,7 +1062,7 @@ window.submitTargetRow = async function () {
     });
 
     try {
-        const response = await fetch(`/api/targets/${currentTargetId}/rows?workspaceId=${currentWorkspaceId}`, {
+        const response = await fetch(window.API_BASE + `/api/targets/${currentTargetId}/rows?workspaceId=${currentWorkspaceId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -1093,7 +1093,7 @@ window.submitTargetColumn = async function () {
     if (!name) return showToast('Column name required', 'warning');
 
     try {
-        const response = await fetch(`/api/targets/${currentTargetId}/columns?workspaceId=${currentWorkspaceId}`, {
+        const response = await fetch(window.API_BASE + `/api/targets/${currentTargetId}/columns?workspaceId=${currentWorkspaceId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -1120,7 +1120,7 @@ window.submitTargetColumn = async function () {
 window.deleteTargetRow = async function (rowId) {
     if (!confirm('Are you sure you want to delete this row?')) return;
     try {
-        const response = await fetch(`/api/targets/${currentTargetId}/rows/${rowId}?workspaceId=${currentWorkspaceId}`, {
+        const response = await fetch(window.API_BASE + `/api/targets/${currentTargetId}/rows/${rowId}?workspaceId=${currentWorkspaceId}`, {
             method: 'DELETE',
             credentials: 'include'
         });
@@ -1197,7 +1197,7 @@ async function loadUserMgmt(roleFilter) {
     container.innerHTML = '<div class="loader-overlay"><div class="spinner"></div></div>';
 
     try {
-        const response = await fetch(`/api/users?role=${roleFilter}&t=${Date.now()}`, {
+        const response = await fetch(window.API_BASE + `/api/users?role=${roleFilter}&t=${Date.now()}`, {
             credentials: 'include'
         });
 
@@ -1470,7 +1470,7 @@ async function submitNewTarget() {
     }
 
     try {
-        const response = await fetch(`/api/workspaces/${wsId}/targets/create`, {
+        const response = await fetch(window.API_BASE + `/api/workspaces/${wsId}/targets/create`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ targetName, startDate, endDate }),
@@ -1578,7 +1578,7 @@ async function confirmDeleteUser() {
     try {
         console.log(`[DELETE] Attempting to delete user ID: ${targetId}`);
 
-        const response = await fetch(`/api/users/${targetId}`, {
+        const response = await fetch(window.API_BASE + `/api/users/${targetId}`, {
             method: 'DELETE',
             credentials: 'include',
             headers: {
@@ -1674,7 +1674,7 @@ async function submitUserRegistration(e) {
     if (btn) btn.disabled = true;
 
     try {
-        const response = await fetch('/api/users/register', {
+        const response = await fetch(window.API_BASE + '/api/users/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(userData),
@@ -1740,7 +1740,7 @@ async function toggleUserStatusDirect(userId, checkbox) {
 
     try {
         console.log(`[Toggle] Sending API request: ${newStatus}`);
-        const response = await fetch(`/api/users/toggle-status`, {
+        const response = await fetch(window.API_BASE + `/api/users/toggle-status`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId: userId, status: newStatus }),
@@ -1817,7 +1817,7 @@ async function submitPasswordReset() {
     }
 
     try {
-        const response = await fetch('/api/users/reset-password', {
+        const response = await fetch(window.API_BASE + '/api/users/reset-password', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -1968,7 +1968,7 @@ async function confirmDeleteWorkspace() {
     closeWsDeleteConfirm();
 
     try {
-        const response = await fetch('/api/workspaces/delete', {
+        const response = await fetch(window.API_BASE + '/api/workspaces/delete', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ tableName: tableName }),
@@ -2167,7 +2167,7 @@ async function loadWorkspaceList() {
     container.innerHTML = '<div class="loader-overlay"><div class="spinner"></div></div>';
 
     try {
-        const response = await fetch(`/api/workspaces?t=${Date.now()}`, { credentials: 'include' });
+        const response = await fetch(window.API_BASE + `/api/workspaces?t=${Date.now()}`, { credentials: 'include' });
         if (!response.ok) throw new Error('Failed to fetch workspaces');
 
         const workspaces = await response.json();
@@ -2339,7 +2339,7 @@ async function loadWorkspaceList() {
                 if (adminHidden) adminHidden.value = '';
 
                 try {
-                    const res = await fetch('/api/users', { credentials: 'include' });
+                    const res = await fetch(window.API_BASE + '/api/users', { credentials: 'include' });
                     const allUsers = await res.json();
                     window.workspaceModalUsers = allUsers; // Store for filtering
 
@@ -2429,7 +2429,7 @@ async function loadActivityLog() {
     container.innerHTML = '<div class="loader-overlay"><div class="spinner"></div></div>';
 
     try {
-        const response = await fetch('/api/logs', { credentials: 'include' });
+        const response = await fetch(window.API_BASE + '/api/logs', { credentials: 'include' });
 
         if (!response.ok) {
             throw new Error('Failed to fetch logs');
@@ -2497,7 +2497,7 @@ async function loadTargets(workspaceId) {
     if (!listDiv) return;
 
     try {
-        const response = await fetch(`/api/workspaces/${workspaceId}/targets`, { credentials: 'include' });
+        const response = await fetch(window.API_BASE + `/api/workspaces/${workspaceId}/targets`, { credentials: 'include' });
         const targets = await response.json();
 
         let html = '';
@@ -2686,7 +2686,7 @@ async function updatePassword() {
         btn.disabled = true;
         btn.textContent = 'Updating...';
 
-        const response = await fetch('/api/users/update-password', {
+        const response = await fetch(window.API_BASE + '/api/users/update-password', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ newPassword: newPass }),
@@ -2728,7 +2728,7 @@ function updateProfileImage() {
             const dataUrl = e.target.result;
 
             try {
-                const response = await fetch('/api/users/update-avatar', {
+                const response = await fetch(window.API_BASE + '/api/users/update-avatar', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ avatar: dataUrl }),
@@ -2764,7 +2764,7 @@ function updateProfileImage() {
 async function logout() {
     console.log('Logout triggered');
     try {
-        const response = await fetch('/api/logout', { method: 'POST', credentials: 'include' });
+        const response = await fetch(window.API_BASE + '/api/logout', { method: 'POST', credentials: 'include' });
         showToast('Logging out...', 'info');
         window.location.replace('index.html');
     } catch (err) {
@@ -3117,7 +3117,7 @@ window.openEditWorkspaceModal = async function (wsDataSafe) {
         if (nameInput) nameInput.value = ws.display_name || ws.name;
 
         // Fetch all users first to populate selection
-        const res = await fetch('/api/users', { credentials: 'include' });
+        const res = await fetch(window.API_BASE + '/api/users', { credentials: 'include' });
         const allUsers = await res.json();
         window.workspaceModalUsers = allUsers;
 
@@ -3292,8 +3292,8 @@ window.loadTargetView = async function (targetId, workspaceId) {
 
     try {
         const [dataRes, membersRes] = await Promise.all([
-            fetch(`/api/targets/${targetId}/data?workspaceId=${workspaceId}`, { credentials: 'include' }),
-            fetch(`/api/targets/${targetId}/members`, { credentials: 'include' })
+            fetch(window.API_BASE + `/api/targets/${targetId}/data?workspaceId=${workspaceId}`, { credentials: 'include' }),
+            fetch(window.API_BASE + `/api/targets/${targetId}/members`, { credentials: 'include' })
         ]);
 
         if (!dataRes.ok) throw new Error('Failed to load target data');
@@ -3508,7 +3508,7 @@ function renderMetricRow(label, colKey, goals, rows, editable, numDays, deletabl
 
 // ─── Shared helper: load goals + build/return __allMetrics__ ─────────────────
 async function getOrInitAllMetrics() {
-    const fetchRes = await fetch(`/api/targets/${currentTargetId}/data?workspaceId=${currentWorkspaceId}`, { credentials: 'include' });
+    const fetchRes = await fetch(window.API_BASE + `/api/targets/${currentTargetId}/data?workspaceId=${currentWorkspaceId}`, { credentials: 'include' });
     const data = await fetchRes.json();
     let goals = data.goals ? JSON.parse(data.goals) : {};
     if (!Array.isArray(goals.__allMetrics__)) {
@@ -3527,7 +3527,7 @@ async function getOrInitAllMetrics() {
 }
 
 async function saveGoals(goals) {
-    await fetch(`/api/targets/${currentTargetId}/goals`, {
+    await fetch(window.API_BASE + `/api/targets/${currentTargetId}/goals`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -3553,7 +3553,7 @@ window.addCustomMetric = async function () {
 async function _createMetricAt(safeLabel, insertIdx) {
     const colKey = safeLabel.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase();
     try {
-        const colRes = await fetch(`/api/targets/${currentTargetId}/columns?workspaceId=${currentWorkspaceId}`, {
+        const colRes = await fetch(window.API_BASE + `/api/targets/${currentTargetId}/columns?workspaceId=${currentWorkspaceId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -3590,7 +3590,7 @@ window.deleteCustomMetric = async function (label, colKey) {
     if (!confirmed) return;
     try {
         // 1. Delete the actual DB column
-        const colRes = await fetch(`/api/targets/${currentTargetId}/columns/${colKey}?workspaceId=${currentWorkspaceId}`, {
+        const colRes = await fetch(window.API_BASE + `/api/targets/${currentTargetId}/columns/${colKey}?workspaceId=${currentWorkspaceId}`, {
             method: 'DELETE', credentials: 'include'
         });
         if (!colRes.ok) {
@@ -3689,7 +3689,7 @@ window.editMetricLabel = async function (oldLabel, colKey, metricType) {
     try {
         if (metricType === 'custom') {
             // For custom: PATCH the DB column name first (bi-directional sync)
-            const res = await fetch(`/api/targets/${currentTargetId}/columns/${colKey}?workspaceId=${currentWorkspaceId}`, {
+            const res = await fetch(window.API_BASE + `/api/targets/${currentTargetId}/columns/${colKey}?workspaceId=${currentWorkspaceId}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -3758,12 +3758,12 @@ window.hideDefaultMetric = async function (label, colKey, rowIdx) {
 
 window.saveGoal = async function (metric, value) {
     try {
-        const fetchRes = await fetch(`/api/targets/${currentTargetId}/data?workspaceId=${currentWorkspaceId}`, { credentials: 'include' });
+        const fetchRes = await fetch(window.API_BASE + `/api/targets/${currentTargetId}/data?workspaceId=${currentWorkspaceId}`, { credentials: 'include' });
         const data = await fetchRes.json();
         let goals = data.goals ? JSON.parse(data.goals) : {};
         goals[metric] = value;
 
-        await fetch(`/api/targets/${currentTargetId}/goals`, {
+        await fetch(window.API_BASE + `/api/targets/${currentTargetId}/goals`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ goals }),
@@ -3805,7 +3805,7 @@ window.showHistoryModal = async function () {
     `;
 
     try {
-        const res = await fetch(`/api/targets/${currentTargetId}/logs`, { credentials: 'include' });
+        const res = await fetch(window.API_BASE + `/api/targets/${currentTargetId}/logs`, { credentials: 'include' });
         const logs = await res.json();
 
         const content = document.getElementById('history-content');
@@ -3884,7 +3884,7 @@ window.showAccessModal = async function () {
     `;
 
     try {
-        const res = await fetch(`/api/targets/${currentTargetId}/members`, { credentials: 'include' });
+        const res = await fetch(window.API_BASE + `/api/targets/${currentTargetId}/members`, { credentials: 'include' });
         if (!res.ok) throw new Error('Failed to load members');
         const members = await res.json();
 
@@ -3968,7 +3968,7 @@ window.showAccessModal = async function () {
         document.getElementById('btn-save-target-access').addEventListener('click', async () => {
             const ids = Array.from(window._accessSelectedIds).map(id => parseInt(id));
             try {
-                const saveRes = await fetch(`/api/targets/${currentTargetId}/members`, {
+                const saveRes = await fetch(window.API_BASE + `/api/targets/${currentTargetId}/members`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ userIds: ids }),
