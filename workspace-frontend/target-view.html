@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Target Data View</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <style>
+        body {
+            padding: 40px;
+            background: #f8fafc;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .target-title {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .target-subtitle {
+            color: #64748b;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .toolbar {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-action {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: white;
+            border: 1px solid #cbd5e1;
+            color: #475569;
+        }
+
+        .btn-danger {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .btn-action:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .data-table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 20px;
+            text-align: left;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .data-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #475569;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            color: #334155;
+            font-size: 0.95em;
+        }
+
+        .data-table tr:hover {
+            background: #f1f5f9;
+        }
+
+        .editable-cell {
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+
+        .editable-cell:hover {
+            background: #e2e8f0;
+        }
+
+        .editable-cell:focus {
+            background: white;
+            outline: 2px solid #3b82f6;
+            cursor: text;
+        }
+
+        /* Modal Styles (Reuse dashboard.css or define simplified) */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 10% auto;
+            padding: 25px;
+            border-radius: 12px;
+            width: 400px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #334155;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <div>
+            <div class="target-title" id="page-title">Loading Target...</div>
+            <div class="target-subtitle" id="page-subtitle">Workspace Data View</div>
+        </div>
+        <div>
+            <button class="btn-action btn-secondary" onclick="window.close()">Close View</button>
+        </div>
+    </div>
+
+    <div class="toolbar">
+        <button class="btn-action btn-primary" onclick="showAddRowModal()">
+            <span>+</span> Add Row
+        </button>
+        <button class="btn-action btn-secondary" onclick="showAddColumnModal()">
+            <span>⑂</span> Add Column
+        </button>
+        <button class="btn-action btn-secondary" onclick="refreshData()">
+            <span>↻</span> Refresh
+        </button>
+    </div>
+
+    <div class="data-table-container">
+        <table class="data-table" id="target-data-table">
+            <thead>
+                <tr id="table-header-row">
+                    <!-- Dynamic Headers -->
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <!-- Dynamic Rows -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Add Row Modal -->
+    <div id="add-row-modal" class="modal">
+        <div class="modal-content">
+            <h3>Add New Entry</h3>
+            <div id="add-row-inputs">
+                <!-- Dynamic Inputs -->
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                <button class="btn-action btn-secondary" onclick="closeModals()">Cancel</button>
+                <button class="btn-action btn-primary" onclick="submitAddRow()">Save Entry</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Column Modal -->
+    <div id="add-col-modal" class="modal">
+        <div class="modal-content">
+            <h3>Add New Column</h3>
+            <div class="input-group">
+                <label>Column Name</label>
+                <input type="text" id="new-col-name" placeholder="e.g. Revenue, Status">
+            </div>
+            <div class="input-group">
+                <label>Type</label>
+                <select id="new-col-type">
+                    <option value="TEXT">Text</option>
+                    <option value="REAL">Number</option>
+                    <option value="DATE">Date</option>
+                </select>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                <button class="btn-action btn-secondary" onclick="closeModals()">Cancel</button>
+                <button class="btn-action btn-primary" onclick="submitAddColumn()">Add Column</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;"></div>
+
+    <script src="js/target-view.js"></script>
+</body>
+
+</html>
